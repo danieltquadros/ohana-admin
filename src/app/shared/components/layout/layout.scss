@@ -1,0 +1,46 @@
+.layout-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+
+  .toolbar-title {
+    margin-left: 8px;
+    font-size: 1.2rem;
+  }
+
+  .toolbar-spacer {
+    flex: 1;
+  }
+
+  .user-name {
+    margin-right: 8px;
+    font-size: 0.9rem;
+  }
+}
+
+.sidenav-container {
+  flex: 1;
+  margin-top: 64px; // altura do toolbar
+}
+
+.sidenav {
+  width: 240px;
+
+  .active-link {
+    background-color: rgba(0, 0, 0, 0.08);
+    color: var(--mat-sidenav-content-text-color);
+    font-weight: 500;
+  }
+}
+
+.content {
+  padding: 24px;
+}

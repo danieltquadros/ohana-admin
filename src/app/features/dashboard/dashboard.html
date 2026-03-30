@@ -1,1 +1,17 @@
-<p>dashboard works!</p>
+<h1>Dashboard</h1>
+
+<div class="cards-container">
+  @for (card of cards; track card.key) {
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon">{{ card.icon }}</mat-icon>
+          <div class="stat-info">
+            <span class="stat-value">{{ getStatValue(card.key) }}</span>
+            <span class="stat-label">{{ card.title }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

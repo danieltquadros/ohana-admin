@@ -1,0 +1,55 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+
+export interface Product {
+  id: number;
+  title: string;
+  image: string;
+  price: number;
+  order: number;
+  isActive: boolean;
+  productTypeId: number;
+  categoryId: number | null;
+  type?: { id: number; name: string };
+  category?: { id: number; name: string };
+}
+
+export interface CreateProduct {
+  title: string;
+  image: string;
+  price: number;
+  order: number;
+  productTypeId: number;
+  categoryId?: number;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class ProductService {
+  private url = `${environment.apiUrl}/products`;
+
+  constructor(private http: HttpClient) {}
+
+  findAll(): Observable<Product[]> {
+    return this.http.get<Product[]>(this.url);
+  }
+
+  findOne(id: number): Observable<Product> {
+    return this.http.get<Product>(`${this.url}/${id}`);
+  }
+
+  create(product: CreateProduct): Observable<Product> {
+    return this.http.post<Product>(this.url, product);
+  }
+
+  update(id: number, product: Partial<CreateProduct>): Observable<Product> {
+    return this.http.patch<Product>(`${this.url}/${id}`, product);
+  }
+
+  remove(id: number): Observable<Product> {
+    return this.http.delete<Product>(`${this.url}/${id}`);
+  }
+}
