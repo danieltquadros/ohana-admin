@@ -8,9 +8,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Product, CreateProduct, ProductService } from '../product';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { CreateProduct, ProductService } from '../product';
 import { ProductType, ProductTypeService } from '../../../core/services/product-type';
 import { Category, CategoryService } from '../../../core/services/category';
+import { UploadService } from '../../../core/services/upload';
 
 @Component({
   selector: 'app-product-form',
@@ -24,6 +26,7 @@ import { Category, CategoryService } from '../../../core/services/category';
     MatIconModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
+    MatProgressBarModule,
   ],
   templateUrl: './product-form.html',
   styleUrl: './product-form.scss',
@@ -32,8 +35,10 @@ export class ProductForm implements OnInit {
   productTypes = signal<ProductType[]>([]);
   categories = signal<Category[]>([]);
   loading = signal(false);
+  uploading = signal(false);
   isEdit = signal(false);
   productId: number | null = null;
+  imagePreview = signal<string | null>(null);
 
   form: CreateProduct = {
     title: '',
@@ -47,6 +52,7 @@ export class ProductForm implements OnInit {
     private productService: ProductService,
     private productTypeService: ProductTypeService,
     private categoryService: CategoryService,
+    private uploadService: UploadService,
     private route: ActivatedRoute,
     private router: Router,
     private snackBar: MatSnackBar,
@@ -83,12 +89,52 @@ export class ProductForm implements OnInit {
           productTypeId: product.productTypeId,
           categoryId: product.categoryId ?? undefined,
         };
+        if (product.image) {
+          this.imagePreview.set(product.image);
+        }
       },
       error: () => {
         this.snackBar.open('Produto não encontrado', 'Fechar', { duration: 3000 });
         this.router.navigate(['/products']);
       },
     });
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) return;
+
+    if (!file.type.match(/^image\/(jpeg|png|webp)$/)) {
+      this.snackBar.open('Formato inválido. Use JPG, PNG ou WebP', 'Fechar', { duration: 3000 });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      this.snackBar.open('Imagem muito grande. Máximo 5MB', 'Fechar', { duration: 3000 });
+      return;
+    }
+
+    this.uploading.set(true);
+
+    this.uploadService.uploadImage(file).subscribe({
+      next: (response) => {
+        this.form.image = response.url;
+        this.imagePreview.set(response.url);
+        this.uploading.set(false);
+        this.snackBar.open('Imagem enviada com sucesso!', 'Fechar', { duration: 3000 });
+      },
+      error: () => {
+        this.uploading.set(false);
+        this.snackBar.open('Erro ao enviar imagem', 'Fechar', { duration: 3000 });
+      },
+    });
+  }
+
+  removeImage() {
+    this.form.image = '';
+    this.imagePreview.set(null);
   }
 
   onSubmit() {
@@ -99,9 +145,15 @@ export class ProductForm implements OnInit {
 
     this.loading.set(true);
 
+    const payload = {
+      ...this.form,
+      price: Number(this.form.price),
+      order: Number(this.form.order),
+    };
+
     const request = this.isEdit()
-      ? this.productService.update(this.productId!, this.form)
-      : this.productService.create(this.form);
+      ? this.productService.update(this.productId!, payload)
+      : this.productService.create(payload);
 
     request.subscribe({
       next: () => {

@@ -10,11 +10,42 @@
         <input matInput [(ngModel)]="form.title" name="title" required />
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>URL da Imagem</mat-label>
-        <input matInput [(ngModel)]="form.image" name="image" />
-        <mat-icon matPrefix>image</mat-icon>
-      </mat-form-field>
+      <div class="image-upload-section">
+        <label>Imagem do Produto</label>
+
+        @if (imagePreview()) {
+          <div class="image-preview">
+            <img [src]="imagePreview()" alt="Preview" />
+            <button
+              mat-icon-button
+              color="warn"
+              type="button"
+              (click)="removeImage()"
+              class="remove-image"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        }
+
+        @if (uploading()) {
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        }
+
+        @if (!imagePreview() && !uploading()) {
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            (change)="onFileSelected($event)"
+            #fileInput
+            hidden
+          />
+          <button mat-stroked-button type="button" (click)="fileInput.click()">
+            <mat-icon>cloud_upload</mat-icon>
+            Fazer Upload
+          </button>
+        }
+      </div>
 
       <div class="form-row">
         <mat-form-field appearance="outline">
