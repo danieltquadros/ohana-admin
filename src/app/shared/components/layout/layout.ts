@@ -27,6 +27,7 @@ export class Layout {
   menuItems = [
     { path: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
     { path: '/products', icon: 'restaurant_menu', label: 'Produtos' },
+    { path: '/ingredients', icon: 'local_florist', label: 'Ingredientes' },
     { path: '/categories', icon: 'category', label: 'Categorias' },
     { path: '/combos', icon: 'local_offer', label: 'Combos' },
   ];

@@ -9,6 +9,7 @@ interface DashboardStats {
   products: number;
   categories: number;
   combos: number;
+  ingredients?: number;
 }
 
 @Component({
@@ -19,12 +20,13 @@ interface DashboardStats {
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit {
-  stats = signal<DashboardStats>({ products: 0, categories: 0, combos: 0 });
+  stats = signal<DashboardStats>({ products: 0, categories: 0, combos: 0, ingredients: 0 });
 
   cards = [
     { title: 'Produtos', icon: 'restaurant_menu', key: 'products' as const },
     { title: 'Categorias', icon: 'category', key: 'categories' as const },
     { title: 'Combos', icon: 'local_offer', key: 'combos' as const },
+    { title: 'Ingredientes', icon: 'local_florist', key: 'ingredients' as const },
   ];
 
   constructor(private http: HttpClient) {}
@@ -44,6 +46,10 @@ export class Dashboard implements OnInit {
 
     this.http.get<any[]>(`${environment.apiUrl}/combos`).subscribe({
       next: (combos) => this.stats.update((s) => ({ ...s, combos: combos.length })),
+    });
+
+    this.http.get<any[]>(`${environment.apiUrl}/ingredients`).subscribe({
+      next: (ingredients) => this.stats.update((s) => ({ ...s, ingredients: ingredients.length })),
     });
   }
 
