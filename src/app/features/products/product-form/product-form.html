@@ -81,6 +81,83 @@
         </mat-form-field>
       </div>
 
+      <mat-divider></mat-divider>
+
+      <div class="ingredients-section">
+        <div class="ingredients-header">
+          <h3>Ingredientes</h3>
+          <div class="ingredients-header-actions">
+            <button mat-stroked-button type="button" (click)="openCreateIngredientDialog()">
+              <mat-icon>add_circle_outline</mat-icon>
+              Novo ingrediente
+            </button>
+            <button mat-stroked-button type="button" (click)="addIngredient()">
+              <mat-icon>add</mat-icon>
+              Adicionar ingrediente
+            </button>
+          </div>
+        </div>
+
+        @if (productIngredients().length === 0) {
+          <p class="empty-ingredients">Nenhum ingrediente adicionado.</p>
+        }
+
+        <div cdkDropList (cdkDropListDropped)="onDropIngredient($event)" class="ingredients-list">
+          @for (row of productIngredients(); track $index) {
+            <div class="ingredient-row" cdkDrag>
+              <div class="drag-handle" cdkDragHandle>
+                <mat-icon>drag_indicator</mat-icon>
+              </div>
+
+              <mat-form-field appearance="outline" class="ingredient-select">
+                <mat-label>Ingrediente</mat-label>
+                <mat-select
+                  [ngModel]="row.ingredientId"
+                  (ngModelChange)="updateIngredientField($index, 'ingredientId', $event)"
+                  [name]="'ingredientId-' + $index"
+                >
+                  @for (ing of ingredients(); track ing.id) {
+                    <mat-option [value]="ing.id" [disabled]="isIngredientUsed(ing.id, $index)">
+                      {{ ing.name }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="ingredient-qty">
+                <mat-label>Qtd</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  [ngModel]="row.quantity"
+                  (ngModelChange)="updateIngredientField($index, 'quantity', $event)"
+                  [name]="'qty-' + $index"
+                  min="1"
+                />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="ingredient-order">
+                <mat-label>Ordem</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  [ngModel]="row.order"
+                  (ngModelChange)="updateIngredientField($index, 'order', $event)"
+                  [name]="'order-' + $index"
+                  min="1"
+                />
+              </mat-form-field>
+
+              <button mat-icon-button color="warn" type="button" (click)="removeIngredient($index)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
       <div class="form-actions">
         <button mat-button type="button" (click)="cancel()">Cancelar</button>
         <button mat-raised-button color="primary" type="submit" [disabled]="loading()">
