@@ -3,6 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+export interface ProductIngredientItem {
+  ingredientId: number;
+  quantity: number;
+  order: number;
+  ingredient?: { id: number; name: string };
+}
+
 export interface Product {
   id: number;
   title: string;
@@ -14,6 +21,7 @@ export interface Product {
   categoryId: number | null;
   type?: { id: number; name: string };
   category?: { id: number; name: string };
+  ingredients?: ProductIngredientItem[];
 }
 
 export interface CreateProduct {
@@ -23,6 +31,7 @@ export interface CreateProduct {
   order: number;
   productTypeId: number;
   categoryId?: number;
+  ingredients?: { ingredientId: number; quantity: number; order: number }[];
 }
 
 @Injectable({

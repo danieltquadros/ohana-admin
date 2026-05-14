@@ -63,3 +63,93 @@
   gap: 8px;
   margin-top: 16px;
 }
+
+mat-divider {
+  margin: 16px 0;
+}
+
+.ingredients-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ingredients-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h3 {
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+.empty-ingredients {
+  text-align: center;
+  padding: 16px;
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.ingredient-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+
+  .ingredient-select {
+    flex: 1;
+  }
+
+  .ingredient-qty,
+  .ingredient-order {
+    width: 100px;
+  }
+}
+
+.ingredients-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ingredient-row {
+  background: white;
+
+  .drag-handle {
+    display: flex;
+    align-items: center;
+    cursor: move;
+    padding-top: 16px;
+    color: rgba(0, 0, 0, 0.4);
+
+    &:hover {
+      color: rgba(0, 0, 0, 0.7);
+    }
+  }
+}
+
+.cdk-drag-preview {
+  box-shadow:
+    0 5px 5px -3px rgba(0, 0, 0, 0.2),
+    0 8px 10px 1px rgba(0, 0, 0, 0.14),
+    0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.ingredients-list.cdk-drop-list-dragging .ingredient-row:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.ingredients-header-actions {
+  display: flex;
+  gap: 8px;
+}
