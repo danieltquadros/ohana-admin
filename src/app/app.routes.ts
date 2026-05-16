@@ -53,6 +53,22 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'combos',
+        loadComponent: () =>
+          import('./features/combos/combo-list/combo-list').then((m) => m.ComboList),
+      },
+      {
+        path: 'combos/new',
+        loadComponent: () =>
+          import('./features/combos/combo-form/combo-form').then((m) => m.ComboForm),
+      },
+      {
+        path: 'combos/:id/edit',
+        loadComponent: () =>
+          import('./features/combos/combo-form/combo-form').then((m) => m.ComboForm),
+      },
+
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full',

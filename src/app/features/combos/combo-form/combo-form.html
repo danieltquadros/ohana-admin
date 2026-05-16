@@ -1,0 +1,190 @@
+<mat-card class="form-card">
+  <mat-card-header>
+    <mat-card-title>{{ isEdit() ? 'Editar Combo' : 'Novo Combo' }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form (ngSubmit)="onSubmit()" class="combo-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Nome</mat-label>
+        <input matInput [(ngModel)]="form.name" name="name" required />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Descrição (opcional)</mat-label>
+        <textarea matInput [(ngModel)]="form.description" name="description" rows="2"></textarea>
+      </mat-form-field>
+
+      <div class="image-upload-section">
+        <label>Imagem do Combo</label>
+
+        @if (imagePreview()) {
+          <div class="image-preview">
+            <img [src]="imagePreview()" alt="Preview" />
+            <button
+              mat-icon-button
+              color="warn"
+              type="button"
+              (click)="removeImage()"
+              class="remove-image"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        }
+
+        @if (uploading()) {
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        }
+
+        @if (!imagePreview() && !uploading()) {
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            (change)="onFileSelected($event)"
+            #fileInput
+            hidden
+          />
+          <button mat-stroked-button type="button" (click)="fileInput.click()">
+            <mat-icon>cloud_upload</mat-icon>
+            Fazer Upload
+          </button>
+        }
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Preço</mat-label>
+          <input matInput type="number" [(ngModel)]="form.price" name="price" step="0.01" />
+          <span matTextPrefix>R$&nbsp;</span>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Desconto</mat-label>
+          <input matInput type="number" [(ngModel)]="form.discount" name="discount" step="0.01" />
+          <span matTextPrefix>R$&nbsp;</span>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Ordem</mat-label>
+          <input matInput type="number" [(ngModel)]="form.order" name="order" />
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Válido de</mat-label>
+          <input
+            matInput
+            [matDatepicker]="fromPicker"
+            [(ngModel)]="form.validFrom"
+            name="validFrom"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
+          <mat-datepicker #fromPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Válido até</mat-label>
+          <input
+            matInput
+            [matDatepicker]="untilPicker"
+            [(ngModel)]="form.validUntil"
+            name="validUntil"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="untilPicker"></mat-datepicker-toggle>
+          <mat-datepicker #untilPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Categoria</mat-label>
+          <mat-select [(ngModel)]="form.categoryId" name="categoryId">
+            <mat-option [value]="undefined">Nenhuma</mat-option>
+            @for (cat of categories(); track cat.id) {
+              <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="products-section">
+        <div class="products-header">
+          <h3>Produtos do Combo</h3>
+          <button mat-stroked-button type="button" (click)="addProduct()">
+            <mat-icon>add</mat-icon>
+            Adicionar produto
+          </button>
+        </div>
+
+        @if (comboProducts().length === 0) {
+          <p class="empty-products">Nenhum produto adicionado.</p>
+        }
+
+        <div cdkDropList (cdkDropListDropped)="onDropProduct($event)" class="products-list">
+          @for (row of comboProducts(); track $index) {
+            <div class="product-row" cdkDrag>
+              <div class="drag-handle" cdkDragHandle>
+                <mat-icon>drag_indicator</mat-icon>
+              </div>
+
+              <mat-form-field appearance="outline" class="product-select">
+                <mat-label>Produto</mat-label>
+                <mat-select
+                  [ngModel]="row.productId"
+                  (ngModelChange)="updateProductField($index, 'productId', $event)"
+                  [name]="'productId-' + $index"
+                >
+                  @for (prod of products(); track prod.id) {
+                    <mat-option [value]="prod.id" [disabled]="isProductUsed(prod.id, $index)">
+                      {{ prod.title }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="product-qty">
+                <mat-label>Qtd</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  [ngModel]="row.quantity"
+                  (ngModelChange)="updateProductField($index, 'quantity', $event)"
+                  [name]="'qty-' + $index"
+                  min="1"
+                />
+              </mat-form-field>
+
+              <mat-checkbox
+                [ngModel]="row.isCustomizable"
+                (ngModelChange)="updateProductField($index, 'isCustomizable', $event)"
+                [name]="'customizable-' + $index"
+                class="product-customizable"
+              >
+                Customizável
+              </mat-checkbox>
+
+              <button mat-icon-button color="warn" type="button" (click)="removeProduct($index)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="form-actions">
+        <button mat-button type="button" (click)="cancel()">Cancelar</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="loading()">
+          @if (loading()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            {{ isEdit() ? 'Salvar' : 'Criar' }}
+          }
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
