@@ -1,59 +1,144 @@
-# OhanaAdmin
+# 🎛️ Ohana Sushi — Admin Panel
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.3.
+[![Angular](https://img.shields.io/badge/Angular-21-DD0031?logo=angular&logoColor=white)](https://angular.dev/)
+[![Angular Material](https://img.shields.io/badge/Angular_Material-21-757575?logo=angular)](https://material.angular.io/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vercel](https://img.shields.io/badge/Deployed-Vercel-000000?logo=vercel)](https://admin.ohanasushidelivery.com.br)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-## Development server
+> Admin panel for managing the Ohana Sushi delivery system.
+> Built with Angular 21, Angular Material, and CDK.
 
-To start a local development server, run:
+**Status:** 🟢 Production — Live at [admin.ohanasushidelivery.com.br](https://admin.ohanasushidelivery.com.br)
+
+---
+
+## 📋 Table of Contents
+
+- [About](#-about)
+- [Tech Stack](#%EF%B8%8F-tech-stack)
+- [Features](#-features)
+- [Getting Started](#-getting-started)
+- [Environment Variables](#-environment-variables)
+- [Project Structure](#%EF%B8%8F-project-structure)
+- [Available Scripts](#-available-scripts)
+- [Deployment](#%EF%B8%8F-deployment)
+- [License](#-license)
+
+---
+
+## 🎯 About
+
+This repository is part of the **Ohana Sushi** project — a full-stack delivery system currently in active commercial use.
+
+The full project consists of three integrated applications:
+
+- 🛒 **[ohana_sushi](https://github.com/danieltquadros/ohana_sushi)** — Customer storefront — Next.js
+- ⚙️ **[ohana-api](https://github.com/danieltquadros/ohana-api)** — REST API backend — NestJS
+- 🎛️ **[ohana-admin](https://github.com/danieltquadros/ohana-admin)** — Admin panel (this repository) — Angular
+
+This admin panel allows administrators to manage products, combos, ingredients, and categories, with role-based access control.
+
+## 🛠️ Tech Stack
+
+- **Framework:** Angular 21
+- **Language:** TypeScript
+- **UI library:** Angular Material
+- **Drag-and-drop:** Angular CDK
+- **Styling:** SCSS
+- **Reactivity:** Signals + Reactive Forms
+- **HTTP:** HttpClient with interceptors
+- **Routing:** Angular Router with lazy loading
+- **Deploy:** Vercel
+
+## ✨ Features
+
+- 🔐 **Authentication:** JWT-based with token interceptor
+- 🛡️ **Authorization:** Route guards integrated with backend RBAC
+- 📦 **Product CRUD** with ingredient management (drag-and-drop reordering, duplicate validation, inline ingredient creation)
+- 🍱 **Combo CRUD** with product selection (customizable products, validity periods, discounts)
+- 🥬 **Ingredient CRUD** with allergen flags
+- 📊 **Dashboard** with live entity counts
+- 🖼️ **Image upload** integrated with Cloudinary via backend
+- 🌐 **Multi-environment:** automatically targets DEV or PRD API based on branch
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 20+
+- pnpm (preferred) or npm
+- Angular CLI 21+: `npm install -g @angular/cli`
+
+### Installation
+
+```bash
+git clone https://github.com/danieltquadros/ohana-admin.git
+cd ohana-admin
+pnpm install
+```
+
+### Running locally
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+App will be available at [http://localhost:4200](http://localhost:4200).
 
-## Code scaffolding
+## 🌐 Environment Variables
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+This project uses Angular's environment files (`src/environments/`):
 
-```bash
-ng generate component component-name
+- `environment.ts` — DEV environment (points to `ohana-api-dev` on Render)
+- `environment.prod.ts` — Production environment
+
+For local development pointing to a local API, edit `environment.ts`:
+
+```typescript
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:3000/api',
+};
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## 🏗️ Project Structure
 
-```bash
-ng generate --help
+```
+src/app/
+├── core/
+│   ├── guards/         # Route guards (auth)
+│   ├── interceptors/   # HTTP interceptors (JWT)
+│   └── services/       # Singleton services (auth, upload, etc.)
+├── features/
+│   ├── login/
+│   ├── dashboard/
+│   ├── products/       # List + form with ingredient management
+│   ├── combos/         # List + form with product selection
+│   └── ingredients/    # List + form + creation dialog
+├── shared/
+│   └── components/
+│       └── layout/     # Sidebar + header + content wrapper
+└── environments/       # DEV/PRD configuration
 ```
 
-## Building
+## 📜 Available Scripts
 
-To build the project run:
+| Script | Description |
+|--------|-------------|
+| `ng serve` | Start dev server (auto-reload) |
+| `ng build` | Build for production |
+| `pnpm run build:vercel` | Conditional build (DEV/PRD based on branch) |
+| `ng test` | Run unit tests |
+| `ng generate component <name>` | Scaffold a new component |
 
-```bash
-ng build
-```
+## ☁️ Deployment
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+- **Production:** Vercel — auto-deploy on push to `main` → `https://admin.ohanasushidelivery.com.br`
+- **Development:** Vercel — auto-deploy on push to `development` → `https://ohana-admin-git-development-danieltquadros-projects.vercel.app`
+- **Build command:** `pnpm run build:vercel` (conditional config based on Git branch)
+- **DNS:** Hostinger (CNAME for admin subdomain)
 
-## Running unit tests
+## 📄 License
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+MIT
