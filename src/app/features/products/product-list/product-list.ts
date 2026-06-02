@@ -1,5 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -54,7 +55,14 @@ export class ProductList implements OnInit {
           this.snackBar.open('Produto excluído com sucesso', 'Fechar', { duration: 3000 });
           this.loadProducts();
         },
-        error: () => this.snackBar.open('Erro ao excluir produto', 'Fechar', { duration: 3000 }),
+        error: (error: HttpErrorResponse) => {
+          if (error.status === 409) {
+            const message = error.error?.message || 'Não é possível excluir este produto';
+            this.snackBar.open(message, 'Fechar', { duration: 3000 });
+            return;
+          }
+          this.snackBar.open('Erro ao excluir produto', 'Fechar', { duration: 3000 });
+        },
       });
     }
   }
