@@ -53,8 +53,9 @@ export class ComboService {
 
   constructor(private http: HttpClient) {}
 
-  findAll(): Observable<Combo[]> {
-    return this.http.get<Combo[]>(this.url);
+  findAll(includeInactive = false): Observable<Combo[]> {
+    const url = includeInactive ? `${this.url}?includeInactive=true` : this.url;
+    return this.http.get<Combo[]>(url);
   }
 
   findOne(id: number): Observable<Combo> {
@@ -67,6 +68,10 @@ export class ComboService {
 
   update(id: number, combo: Partial<CreateCombo>): Observable<Combo> {
     return this.http.patch<Combo>(`${this.url}/${id}`, combo);
+  }
+
+  setActive(id: number, isActive: boolean): Observable<Combo> {
+    return this.http.patch<Combo>(`${this.url}/${id}`, { isActive });
   }
 
   remove(id: number): Observable<Combo> {
