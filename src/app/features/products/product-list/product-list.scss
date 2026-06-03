@@ -10,6 +10,12 @@
   }
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
 .product-table {
   width: 100%;
 }
@@ -19,6 +25,27 @@
   height: 50px;
   object-fit: cover;
   border-radius: 4px;
+}
+
+.status-chip {
+  font-size: 0.75rem;
+  min-height: 24px;
+  padding: 4px 12px;
+
+  &.status-active {
+    background-color: #c8e6c9;
+    color: #1b5e20;
+  }
+
+  &.status-inactive {
+    background-color: #ffcdd2;
+    color: #b71c1c;
+  }
+}
+
+.inactive-row {
+  opacity: 0.55;
+  background-color: rgba(0, 0, 0, 0.02);
 }
 
 .empty-message {

@@ -42,8 +42,9 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-  findAll(): Observable<Product[]> {
-    return this.http.get<Product[]>(this.url);
+  findAll(includeInactive = false): Observable<Product[]> {
+    const url = includeInactive ? `${this.url}?includeInactive=true` : this.url;
+    return this.http.get<Product[]>(url);
   }
 
   findOne(id: number): Observable<Product> {
@@ -56,6 +57,10 @@ export class ProductService {
 
   update(id: number, product: Partial<CreateProduct>): Observable<Product> {
     return this.http.patch<Product>(`${this.url}/${id}`, product);
+  }
+
+  setActive(id: number, isActive: boolean): Observable<Product> {
+    return this.http.patch<Product>(`${this.url}/${id}`, { isActive });
   }
 
   remove(id: number): Observable<Product> {
