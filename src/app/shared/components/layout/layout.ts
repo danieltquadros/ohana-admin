@@ -30,6 +30,8 @@ export class Layout {
     { path: '/ingredients', icon: 'local_florist', label: 'Ingredientes' },
     { path: '/combos', icon: 'local_offer', label: 'Combos' },
     { path: '/categories', icon: 'category', label: 'Categorias' },
+    { path: '/product-types', icon: 'sell', label: 'Tipos de Produto' },
+    { path: '/menu-sections', icon: 'view_list', label: 'Seções do Menu' },
   ];
 
   constructor(private authService: AuthService) {}

@@ -1,0 +1,38 @@
+.form-card {
+  max-width: 600px;
+
+  mat-card-header {
+    margin-bottom: 16px;
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.hint-paragraph {
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.6);
+  margin: 4px 0 12px 0;
+
+  code {
+    background-color: rgba(0, 0, 0, 0.06);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 0.85rem;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}

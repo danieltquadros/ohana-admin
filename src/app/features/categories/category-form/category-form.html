@@ -1,0 +1,82 @@
+<mat-card class="form-card">
+  <mat-card-header>
+    <mat-card-title>
+      {{ isEdit() ? 'Editar Categoria' : 'Nova Categoria' }}
+    </mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form (ngSubmit)="onSubmit()" class="form">
+      <mat-form-field appearance="outline">
+        <mat-label>Nome de Exibição</mat-label>
+        <input matInput [(ngModel)]="form.label" name="label" required />
+        <mat-hint>Como aparece no menu (ex: "Premium", "Especial")</mat-hint>
+      </mat-form-field>
+
+      @if (isEdit()) {
+        <mat-form-field appearance="outline">
+          <mat-label>Identificador Técnico</mat-label>
+          <input matInput [value]="technicalName()" readonly disabled />
+          <mat-hint>Auto-gerado a partir do nome de exibição. Não pode ser editado.</mat-hint>
+        </mat-form-field>
+      } @else {
+        <p class="hint-paragraph">
+          ℹ️ O identificador técnico (ex: <code>PREMIUM</code>) será gerado automaticamente a partir do nome de exibição.
+        </p>
+      }
+
+      <mat-form-field appearance="outline">
+        <mat-label>Descrição</mat-label>
+        <textarea
+          matInput
+          [(ngModel)]="form.description"
+          name="description"
+          rows="2"
+        ></textarea>
+        <mat-hint>Opcional - descrição interna</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo</mat-label>
+        <mat-select [(ngModel)]="form.type" name="type" required>
+          <mat-option value="PRODUCT">Produto</mat-option>
+          <mat-option value="COMBO">Combo</mat-option>
+        </mat-select>
+        <mat-hint>Define se a categoria agrupa produtos ou combos</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Ordem</mat-label>
+        <input
+          matInput
+          type="number"
+          [(ngModel)]="form.order"
+          name="order"
+          min="0"
+          required
+        />
+        <mat-hint>Posição na ordenação dentro do tipo de produto</mat-hint>
+      </mat-form-field>
+
+      <mat-checkbox [(ngModel)]="form.isActive" name="isActive">
+        Ativa
+      </mat-checkbox>
+
+      <div class="form-actions">
+        <button mat-button type="button" (click)="cancel()">Cancelar</button>
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="loading()"
+        >
+          @if (loading()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            {{ isEdit() ? 'Salvar' : 'Criar' }}
+          }
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
