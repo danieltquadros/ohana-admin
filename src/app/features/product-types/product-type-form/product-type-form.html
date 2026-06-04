@@ -1,0 +1,49 @@
+<mat-card class="form-card">
+  <mat-card-header>
+    <mat-card-title>
+      {{ isEdit() ? 'Editar Tipo de Produto' : 'Novo Tipo de Produto' }}
+    </mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form (ngSubmit)="onSubmit()" class="form">
+      <mat-form-field appearance="outline">
+        <mat-label>Nome de Exibição</mat-label>
+        <input matInput [(ngModel)]="form.label" name="label" required />
+        <mat-hint>Como aparece no menu (ex: "Porções", "Combos")</mat-hint>
+      </mat-form-field>
+
+      @if (isEdit()) {
+        <mat-form-field appearance="outline">
+          <mat-label>Identificador Técnico</mat-label>
+          <input matInput [value]="technicalName()" readonly disabled />
+          <mat-hint>Auto-gerado a partir do nome de exibição. Não pode ser editado.</mat-hint>
+        </mat-form-field>
+      } @else {
+        <p class="hint-paragraph">
+          ℹ️ O identificador técnico (ex: <code>PORTION</code>) será gerado automaticamente a partir do nome de exibição.
+        </p>
+      }
+
+      <mat-checkbox [(ngModel)]="form.isActive" name="isActive">
+        Ativo
+      </mat-checkbox>
+
+      <div class="form-actions">
+        <button mat-button type="button" (click)="cancel()">Cancelar</button>
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="loading()"
+        >
+          @if (loading()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            {{ isEdit() ? 'Salvar' : 'Criar' }}
+          }
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

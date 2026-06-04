@@ -1,0 +1,94 @@
+<div class="list-header">
+  <h1>Seções do Menu</h1>
+  <div class="header-actions">
+    <mat-slide-toggle
+      [(ngModel)]="showInactive"
+      (change)="onToggleInactive()"
+    >
+      Mostrar inativas
+    </mat-slide-toggle>
+    <button mat-raised-button color="primary" (click)="newSection()">
+      <mat-icon>add</mat-icon>
+      Nova Seção
+    </button>
+  </div>
+</div>
+
+<p class="info-hint">
+  <mat-icon inline>info</mat-icon>
+  Arraste e solte para reordenar as seções. A ordem aqui controla como o menu é exibido para o cliente.
+</p>
+
+<div
+  cdkDropList
+  class="drop-list"
+  (cdkDropListDropped)="onDrop($event)"
+>
+  @for (section of sections(); track section.id) {
+    <mat-card
+      cdkDrag
+      class="section-card"
+      [class.inactive-card]="!section.isActive"
+    >
+      <div class="section-row">
+        <div class="drag-handle" cdkDragHandle matTooltip="Arrastar para reordenar">
+          <mat-icon>drag_indicator</mat-icon>
+        </div>
+
+        <div class="section-info">
+          <div class="section-title">
+            <span class="order-badge">{{ section.order }}</span>
+            <strong>{{ section.label }}</strong>
+            @if (section.kind === 'COMBOS') {
+              <mat-chip class="kind-chip kind-combos">Combos</mat-chip>
+            } @else {
+              <mat-chip class="kind-chip kind-product">Tipo de Produto</mat-chip>
+            }
+            @if (section.isActive) {
+              <mat-chip class="status-chip status-active">Ativa</mat-chip>
+            } @else {
+              <mat-chip class="status-chip status-inactive">Inativa</mat-chip>
+            }
+          </div>
+          @if (section.kind === 'PRODUCT_TYPE' && section.productType) {
+            <div class="section-meta">
+              Vinculada ao tipo: <code>{{ section.productType.name }}</code>
+              ({{ section.productType.label }})
+            </div>
+          }
+        </div>
+
+        <div class="section-actions">
+          <button mat-icon-button (click)="editSection(section.id)" matTooltip="Editar">
+            <mat-icon>edit</mat-icon>
+          </button>
+          @if (section.isActive) {
+            <button mat-icon-button (click)="toggleActive(section)" matTooltip="Desativar">
+              <mat-icon>visibility_off</mat-icon>
+            </button>
+          } @else {
+            <button mat-icon-button color="primary" (click)="toggleActive(section)" matTooltip="Ativar">
+              <mat-icon>visibility</mat-icon>
+            </button>
+          }
+          <button
+            mat-icon-button
+            color="warn"
+            (click)="deleteSection(section.id, section.label)"
+            matTooltip="Excluir definitivamente"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </mat-card>
+  }
+</div>
+
+@if (sections().length === 0) {
+  <p class="empty-message">Nenhuma seção encontrada.</p>
+}
+
+@if (saving()) {
+  <p class="saving-hint">Salvando nova ordem...</p>
+}
