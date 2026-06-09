@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -6,28 +6,30 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
-import { CreateProduct, ProductService } from '../product';
-import { ProductType, ProductTypeService } from '../../../core/services/product-type';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CreateCombo, ComboService } from '../combo';
+import { Product, ProductService } from '../../products/product';
 import { Category, CategoryService } from '../../../core/services/category';
 import { UploadService } from '../../../core/services/upload';
-import { Ingredient, IngredientService } from '../../ingredients/ingredient';
-import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
-import { MatDialog } from '@angular/material/dialog';
-import { IngredientFormDialog } from '../../ingredients/ingredient-form-dialog/ingredient-form-dialog';
 
-interface IngredientRow {
-  ingredientId: number | null;
+interface ComboProductRow {
+  productId: number | null;
   quantity: number;
   order: number;
+  isCustomizable: boolean;
 }
 
 @Component({
-  selector: 'app-product-form',
+  selector: 'app-combo-form',
   standalone: true,
+  providers: [provideNativeDateAdapter()],
   imports: [
     FormsModule,
     MatCardModule,
@@ -35,44 +37,47 @@ interface IngredientRow {
     MatButtonModule,
     MatSelectModule,
     MatIconModule,
+    MatCheckboxModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
     MatProgressBarModule,
     MatDividerModule,
+    MatDatepickerModule,
     DragDropModule,
   ],
-  templateUrl: './product-form.html',
-  styleUrl: './product-form.scss',
+  templateUrl: './combo-form.html',
+  styleUrl: './combo-form.scss',
 })
-export class ProductForm implements OnInit {
-  productTypes = signal<ProductType[]>([]);
+export class ComboForm implements OnInit {
   categories = signal<Category[]>([]);
-  ingredients = signal<Ingredient[]>([]);
-  productIngredients = signal<IngredientRow[]>([]);
+  products = signal<Product[]>([]);
+  comboProducts = signal<ComboProductRow[]>([]);
   loading = signal(false);
   uploading = signal(false);
   isEdit = signal(false);
-  productId: number | null = null;
+  comboId: number | null = null;
   imagePreview = signal<string | null>(null);
 
-  form: CreateProduct = {
-    title: '',
+  form: CreateCombo = {
+    name: '',
+    description: '',
     image: '',
     price: 0,
     order: 0,
-    productTypeId: 0,
+    discount: undefined,
+    validFrom: undefined,
+    validUntil: undefined,
+    categoryId: undefined,
   };
 
   constructor(
+    private comboService: ComboService,
     private productService: ProductService,
-    private productTypeService: ProductTypeService,
     private categoryService: CategoryService,
     private uploadService: UploadService,
-    private ingredientService: IngredientService,
     private route: ActivatedRoute,
     private router: Router,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog,
   ) {}
 
   ngOnInit() {
@@ -81,96 +86,85 @@ export class ProductForm implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     if (id && id !== 'new') {
       this.isEdit.set(true);
-      this.productId = +id;
-      this.loadProduct(this.productId);
+      this.comboId = +id;
+      this.loadCombo(this.comboId);
     }
   }
 
   private loadSelects() {
-    this.productTypeService.findAll().subscribe({
-      next: (types) => this.productTypes.set(types),
-    });
     this.categoryService.findAll().subscribe({
       next: (categories) => this.categories.set(categories),
     });
-    this.ingredientService.findAll().subscribe({
-      next: (ingredients) => this.ingredients.set(ingredients),
+    this.productService.findAll().subscribe({
+      next: (products) => this.products.set(products),
     });
   }
 
-  private loadProduct(id: number) {
-    this.productService.findOne(id).subscribe({
-      next: (product) => {
+  private loadCombo(id: number) {
+    this.comboService.findOne(id).subscribe({
+      next: (combo) => {
         this.form = {
-          title: product.title,
-          image: product.image,
-          price: product.price,
-          order: product.order,
-          productTypeId: product.productTypeId,
-          categoryId: product.categoryId ?? undefined,
+          name: combo.name,
+          description: combo.description ?? '',
+          image: combo.image,
+          price: combo.price,
+          order: combo.order,
+          discount: combo.discount,
+          validFrom: combo.validFrom,
+          validUntil: combo.validUntil,
+          categoryId: combo.categoryId,
         };
-        if (product.image) {
-          this.imagePreview.set(product.image);
+        if (combo.image) {
+          this.imagePreview.set(combo.image);
         }
-        if (product.ingredients) {
-          this.productIngredients.set(
-            product.ingredients.map((pi) => ({
-              ingredientId: pi.ingredientId,
-              quantity: pi.quantity,
-              order: pi.order,
+        if (combo.products) {
+          this.comboProducts.set(
+            combo.products.map((cp) => ({
+              productId: cp.productId,
+              quantity: cp.quantity,
+              order: cp.order,
+              isCustomizable: cp.isCustomizable,
             })),
           );
         }
       },
       error: () => {
-        this.snackBar.open('Produto não encontrado', 'Fechar', { duration: 3000 });
-        this.router.navigate(['/products']);
+        this.snackBar.open('Combo não encontrado', 'Fechar', { duration: 3000 });
+        this.router.navigate(['/combos']);
       },
     });
   }
 
-  addIngredient() {
-    const nextOrder = this.productIngredients().length + 1;
-    this.productIngredients.update((rows) => [
+  addProduct() {
+    const nextOrder = this.comboProducts().length + 1;
+    this.comboProducts.update((rows) => [
       ...rows,
-      { ingredientId: null, quantity: 1, order: nextOrder },
+      { productId: null, quantity: 1, order: nextOrder, isCustomizable: false },
     ]);
   }
 
-  removeIngredient(index: number) {
-    this.productIngredients.update((rows) => {
+  removeProduct(index: number) {
+    this.comboProducts.update((rows) => {
       const next = rows.filter((_, i) => i !== index);
       return next.map((r, i) => ({ ...r, order: i + 1 }));
     });
   }
 
-  isIngredientUsed(ingredientId: number, currentIndex: number): boolean {
-    return this.productIngredients().some(
-      (row, i) => i !== currentIndex && row.ingredientId === ingredientId,
-    );
-  }
-
-  updateIngredientField(index: number, field: keyof IngredientRow, value: number | null) {
-    this.productIngredients.update((rows) =>
+  updateProductField(index: number, field: keyof ComboProductRow, value: number | boolean | null) {
+    this.comboProducts.update((rows) =>
       rows.map((r, i) => (i === index ? { ...r, [field]: value } : r)),
     );
   }
 
-  onDropIngredient(event: CdkDragDrop<IngredientRow[]>) {
-    this.productIngredients.update((rows) => {
+  isProductUsed(productId: number, currentIndex: number): boolean {
+    return this.comboProducts().some((row, i) => i !== currentIndex && row.productId === productId);
+  }
+
+  onDropProduct(event: CdkDragDrop<ComboProductRow[]>) {
+    this.comboProducts.update((rows) => {
       const next = [...rows];
       moveItemInArray(next, event.previousIndex, event.currentIndex);
       return next.map((r, i) => ({ ...r, order: i + 1 }));
-    });
-  }
-
-  openCreateIngredientDialog() {
-    const ref = this.dialog.open(IngredientFormDialog);
-
-    ref.afterClosed().subscribe((created: Ingredient | null) => {
-      if (created) {
-        this.ingredients.update((list) => [...list, created]);
-      }
     });
   }
 
@@ -212,15 +206,15 @@ export class ProductForm implements OnInit {
   }
 
   onSubmit() {
-    if (!this.form.title || !this.form.productTypeId) {
+    if (!this.form.name) {
       this.snackBar.open('Preencha os campos obrigatórios', 'Fechar', { duration: 3000 });
       return;
     }
 
-    const rows = this.productIngredients();
-    const invalid = rows.some((r) => !r.ingredientId || r.quantity <= 0);
+    const rows = this.comboProducts();
+    const invalid = rows.some((r) => !r.productId || r.quantity <= 0);
     if (invalid) {
-      this.snackBar.open('Verifique os ingredientes (selecionar e quantidade > 0)', 'Fechar', {
+      this.snackBar.open('Verifique os produtos (selecionar e quantidade > 0)', 'Fechar', {
         duration: 3000,
       });
       return;
@@ -228,36 +222,38 @@ export class ProductForm implements OnInit {
 
     this.loading.set(true);
 
-    const payload: CreateProduct = {
+    const payload: CreateCombo = {
       ...this.form,
       price: Number(this.form.price),
       order: Number(this.form.order),
-      ingredients: rows.map((r) => ({
-        ingredientId: r.ingredientId!,
+      discount: this.form.discount !== undefined ? Number(this.form.discount) : undefined,
+      products: rows.map((r) => ({
+        productId: r.productId!,
         quantity: Number(r.quantity),
         order: Number(r.order),
+        isCustomizable: r.isCustomizable,
       })),
     };
 
     const request = this.isEdit()
-      ? this.productService.update(this.productId!, payload)
-      : this.productService.create(payload);
+      ? this.comboService.update(this.comboId!, payload)
+      : this.comboService.create(payload);
 
     request.subscribe({
       next: () => {
-        this.snackBar.open(this.isEdit() ? 'Produto atualizado!' : 'Produto criado!', 'Fechar', {
+        this.snackBar.open(this.isEdit() ? 'Combo atualizado!' : 'Combo criado!', 'Fechar', {
           duration: 3000,
         });
-        this.router.navigate(['/products']);
+        this.router.navigate(['/combos']);
       },
       error: () => {
         this.loading.set(false);
-        this.snackBar.open('Erro ao salvar produto', 'Fechar', { duration: 3000 });
+        this.snackBar.open('Erro ao salvar combo', 'Fechar', { duration: 3000 });
       },
     });
   }
 
   cancel() {
-    this.router.navigate(['/products']);
+    this.router.navigate(['/combos']);
   }
 }

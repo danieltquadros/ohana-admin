@@ -5,6 +5,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-ingredient-list',
@@ -46,8 +47,18 @@ export class IngredientList implements OnInit {
           this.snackBar.open('Ingrediente excluído com sucesso', 'Fechar', { duration: 3000 });
           this.loadIngredients();
         },
-        error: () =>
-          this.snackBar.open('Erro ao excluir ingrediente', 'Fechar', { duration: 3000 }),
+        error: (error: HttpErrorResponse) => {
+          if (error.status === 409) {
+            this.snackBar.open(
+              error.error.message ||
+                'Não é possível excluir este ingrediente pois está sendo usado',
+              'Fechar',
+              { duration: 3000 },
+            );
+            return;
+          }
+          this.snackBar.open('Erro ao excluir ingrediente', 'Fechar', { duration: 3000 });
+        },
       });
     }
   }

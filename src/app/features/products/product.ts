@@ -3,6 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+export interface ProductIngredientItem {
+  ingredientId: number;
+  quantity: number;
+  order: number;
+  ingredient?: { id: number; name: string };
+}
+
 export interface Product {
   id: number;
   title: string;
@@ -14,6 +21,7 @@ export interface Product {
   categoryId: number | null;
   type?: { id: number; name: string };
   category?: { id: number; name: string };
+  ingredients?: ProductIngredientItem[];
 }
 
 export interface CreateProduct {
@@ -23,6 +31,7 @@ export interface CreateProduct {
   order: number;
   productTypeId: number;
   categoryId?: number;
+  ingredients?: { ingredientId: number; quantity: number; order: number }[];
 }
 
 @Injectable({
@@ -33,8 +42,9 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-  findAll(): Observable<Product[]> {
-    return this.http.get<Product[]>(this.url);
+  findAll(includeInactive = false): Observable<Product[]> {
+    const url = includeInactive ? `${this.url}?includeInactive=true` : this.url;
+    return this.http.get<Product[]>(url);
   }
 
   findOne(id: number): Observable<Product> {
@@ -47,6 +57,10 @@ export class ProductService {
 
   update(id: number, product: Partial<CreateProduct>): Observable<Product> {
     return this.http.patch<Product>(`${this.url}/${id}`, product);
+  }
+
+  setActive(id: number, isActive: boolean): Observable<Product> {
+    return this.http.patch<Product>(`${this.url}/${id}`, { isActive });
   }
 
   remove(id: number): Observable<Product> {

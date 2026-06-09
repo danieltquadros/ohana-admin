@@ -1,17 +1,22 @@
 <mat-card class="form-card">
   <mat-card-header>
-    <mat-card-title>{{ isEdit() ? 'Editar Produto' : 'Novo Produto' }}</mat-card-title>
+    <mat-card-title>{{ isEdit() ? 'Editar Combo' : 'Novo Combo' }}</mat-card-title>
   </mat-card-header>
 
   <mat-card-content>
-    <form (ngSubmit)="onSubmit()" class="product-form">
+    <form (ngSubmit)="onSubmit()" class="combo-form">
       <mat-form-field appearance="outline">
         <mat-label>Nome</mat-label>
-        <input matInput [(ngModel)]="form.title" name="title" required />
+        <input matInput [(ngModel)]="form.name" name="name" required />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Descrição (opcional)</mat-label>
+        <textarea matInput [(ngModel)]="form.description" name="description" rows="2"></textarea>
       </mat-form-field>
 
       <div class="image-upload-section">
-        <label>Imagem do Produto</label>
+        <label>Imagem do Combo</label>
 
         @if (imagePreview()) {
           <div class="image-preview">
@@ -55,6 +60,12 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline">
+          <mat-label>Desconto</mat-label>
+          <input matInput type="number" [(ngModel)]="form.discount" name="discount" step="0.01" />
+          <span matTextPrefix>R$&nbsp;</span>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
           <mat-label>Ordem</mat-label>
           <input matInput type="number" [(ngModel)]="form.order" name="order" />
         </mat-form-field>
@@ -62,12 +73,27 @@
 
       <div class="form-row">
         <mat-form-field appearance="outline">
-          <mat-label>Tipo de Produto</mat-label>
-          <mat-select [(ngModel)]="form.productTypeId" name="productTypeId" required>
-            @for (type of productTypes(); track type.id) {
-              <mat-option [value]="type.id">{{ type.name }}</mat-option>
-            }
-          </mat-select>
+          <mat-label>Válido de</mat-label>
+          <input
+            matInput
+            [matDatepicker]="fromPicker"
+            [(ngModel)]="form.validFrom"
+            name="validFrom"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
+          <mat-datepicker #fromPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Válido até</mat-label>
+          <input
+            matInput
+            [matDatepicker]="untilPicker"
+            [(ngModel)]="form.validUntil"
+            name="validUntil"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="untilPicker"></mat-datepicker-toggle>
+          <mat-datepicker #untilPicker></mat-datepicker>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
@@ -83,72 +109,63 @@
 
       <mat-divider></mat-divider>
 
-      <div class="ingredients-section">
-        <div class="ingredients-header">
-          <h3>Ingredientes</h3>
-          <div class="ingredients-header-actions">
-            <button mat-stroked-button type="button" (click)="openCreateIngredientDialog()">
-              <mat-icon>add_circle_outline</mat-icon>
-              Novo ingrediente
-            </button>
-            <button mat-stroked-button type="button" (click)="addIngredient()">
-              <mat-icon>add</mat-icon>
-              Adicionar ingrediente
-            </button>
-          </div>
+      <div class="products-section">
+        <div class="products-header">
+          <h3>Produtos do Combo</h3>
+          <button mat-stroked-button type="button" (click)="addProduct()">
+            <mat-icon>add</mat-icon>
+            Adicionar produto
+          </button>
         </div>
 
-        @if (productIngredients().length === 0) {
-          <p class="empty-ingredients">Nenhum ingrediente adicionado.</p>
+        @if (comboProducts().length === 0) {
+          <p class="empty-products">Nenhum produto adicionado.</p>
         }
 
-        <div cdkDropList (cdkDropListDropped)="onDropIngredient($event)" class="ingredients-list">
-          @for (row of productIngredients(); track $index) {
-            <div class="ingredient-row" cdkDrag>
+        <div cdkDropList (cdkDropListDropped)="onDropProduct($event)" class="products-list">
+          @for (row of comboProducts(); track $index) {
+            <div class="product-row" cdkDrag>
               <div class="drag-handle" cdkDragHandle>
                 <mat-icon>drag_indicator</mat-icon>
               </div>
 
-              <mat-form-field appearance="outline" class="ingredient-select">
-                <mat-label>Ingrediente</mat-label>
+              <mat-form-field appearance="outline" class="product-select">
+                <mat-label>Produto</mat-label>
                 <mat-select
-                  [ngModel]="row.ingredientId"
-                  (ngModelChange)="updateIngredientField($index, 'ingredientId', $event)"
-                  [name]="'ingredientId-' + $index"
+                  [ngModel]="row.productId"
+                  (ngModelChange)="updateProductField($index, 'productId', $event)"
+                  [name]="'productId-' + $index"
                 >
-                  @for (ing of ingredients(); track ing.id) {
-                    <mat-option [value]="ing.id" [disabled]="isIngredientUsed(ing.id, $index)">
-                      {{ ing.name }}
+                  @for (prod of products(); track prod.id) {
+                    <mat-option [value]="prod.id" [disabled]="isProductUsed(prod.id, $index)">
+                      {{ prod.title }}
                     </mat-option>
                   }
                 </mat-select>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" class="ingredient-qty">
+              <mat-form-field appearance="outline" class="product-qty">
                 <mat-label>Qtd</mat-label>
                 <input
                   matInput
                   type="number"
                   [ngModel]="row.quantity"
-                  (ngModelChange)="updateIngredientField($index, 'quantity', $event)"
+                  (ngModelChange)="updateProductField($index, 'quantity', $event)"
                   [name]="'qty-' + $index"
                   min="1"
                 />
               </mat-form-field>
 
-              <mat-form-field appearance="outline" class="ingredient-order">
-                <mat-label>Ordem</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  [ngModel]="row.order"
-                  (ngModelChange)="updateIngredientField($index, 'order', $event)"
-                  [name]="'order-' + $index"
-                  min="1"
-                />
-              </mat-form-field>
+              <mat-checkbox
+                [ngModel]="row.isCustomizable"
+                (ngModelChange)="updateProductField($index, 'isCustomizable', $event)"
+                [name]="'customizable-' + $index"
+                class="product-customizable"
+              >
+                Customizável
+              </mat-checkbox>
 
-              <button mat-icon-button color="warn" type="button" (click)="removeIngredient($index)">
+              <button mat-icon-button color="warn" type="button" (click)="removeProduct($index)">
                 <mat-icon>delete</mat-icon>
               </button>
             </div>

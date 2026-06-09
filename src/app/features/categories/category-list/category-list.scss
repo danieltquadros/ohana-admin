@@ -1,4 +1,4 @@
-.product-list-header {
+.list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -16,22 +16,26 @@
   gap: 24px;
 }
 
-.product-table {
+.data-table {
   width: 100%;
 }
 
-.product-image {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
+.tech-code {
+  background-color: rgba(0, 0, 0, 0.06);
+  padding: 2px 8px;
   border-radius: 4px;
+  font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  font-size: 0.85rem;
 }
 
-.status-chip {
+.status-chip,
+.type-chip {
   font-size: 0.75rem;
   min-height: 24px;
   padding: 4px 12px;
+}
 
+.status-chip {
   &.status-active {
     background-color: #c8e6c9;
     color: #1b5e20;
@@ -40,6 +44,18 @@
   &.status-inactive {
     background-color: #ffcdd2;
     color: #b71c1c;
+  }
+}
+
+.type-chip {
+  &.type-combo {
+    background-color: #fff3e0;
+    color: #e65100;
+  }
+
+  &.type-product {
+    background-color: #e3f2fd;
+    color: #0d47a1;
   }
 }
 

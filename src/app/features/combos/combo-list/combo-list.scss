@@ -1,4 +1,4 @@
-.product-list-header {
+.combo-list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -16,11 +16,11 @@
   gap: 24px;
 }
 
-.product-table {
+.combo-table {
   width: 100%;
 }
 
-.product-image {
+.combo-image {
   width: 50px;
   height: 50px;
   object-fit: cover;
