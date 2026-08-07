@@ -39,6 +39,12 @@ The full project consists of three integrated applications:
 
 This admin panel allows administrators to manage products, combos, ingredients, and categories, with role-based access control.
 
+## 🏛️ Architecture
+
+Part of a 3-app system in commercial production since **July 2025**.
+Full architecture diagram and key decisions:
+**[ohana-api](https://github.com/danieltquadros/ohana-api#readme)**.
+
 ## 🛠️ Tech Stack
 
 - **Framework:** Angular 21
