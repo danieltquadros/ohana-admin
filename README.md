@@ -4,7 +4,6 @@
 [![Angular Material](https://img.shields.io/badge/Angular_Material-21-757575?logo=angular)](https://material.angular.io/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vercel](https://img.shields.io/badge/Deployed-Vercel-000000?logo=vercel)](https://admin.ohanasushidelivery.com.br)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 > Admin panel for managing the Ohana Sushi delivery system.
 > Built with Angular 21, Angular Material, and CDK.
@@ -147,4 +146,8 @@ src/app/
 
 ## 📄 License
 
-MIT
+Copyright © 2025–2026 Daniel Teixeira Quadros. All rights reserved.
+
+This source code is publicly available for reading and portfolio
+evaluation purposes only. No permission is granted to use, copy,
+modify, or distribute this software, in whole or in part.
